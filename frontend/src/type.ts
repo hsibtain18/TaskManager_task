@@ -7,3 +7,4 @@ export interface Task {
 }
 
 export type TaskFormData = Omit<Task, 'id' | 'created_at'>;
+export type ViewMode = 'grid' | 'table';
