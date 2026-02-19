@@ -1,20 +1,42 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import TaskCard from './components/TaskCard';
 import TaskForm from './components/TaskForm';
 import type { Task, TaskFormData } from './type';
+import { taskService } from './services/Apis';
 
 export default function App() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editTask, setEditTask] = useState<Task | null>(null);
+  useEffect(() => {
+    loadTasks();
+  }, []);
 
-  const saveTask = (data: TaskFormData) => {
-    if (editTask) {
-      setTasks(tasks.map(t => t.id === editTask.id ? { ...t, ...data } : t));
-    } else {
-      setTasks([...tasks, { ...data, id: Date.now() }]);
+  const loadTasks = async () => {
+    try {
+      const data = await taskService.getAll();
+      setTasks(data);
+    } catch (error) {
+      console.error("Failed to fetch tasks", error);
+    } finally {
     }
-    closeModal();
+  };
+  const saveTask = async (data: TaskFormData) => {
+    try {
+      if (editTask) {
+
+      } else {
+        const newTask = await taskService.createTask(data);
+        setTasks([newTask, ...tasks]);
+
+        //  await taskService.createTask(data);
+        // await loadTasks()
+      }
+
+      closeModal();
+    } catch (error) {
+      console.error("Error saving task:", error);
+    }
   };
 
   const closeModal = () => {
@@ -27,7 +49,7 @@ export default function App() {
       <div className="max-w-4xl mx-auto">
         <div className="flex justify-between items-center border-b border-gray-300 pb-4 mb-6">
           <h1 className="text-xl font-bold">Task Management System</h1>
-          <button 
+          <button
             onClick={() => setShowForm(true)}
             className="bg-blue-600 text-white px-4 py-2 text-sm font-medium hover:bg-blue-700"
           >
@@ -38,12 +60,12 @@ export default function App() {
         {tasks.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {tasks.map(t => (
-              <TaskCard 
-                key={t.id} 
-                task={t} 
+              <TaskCard
+                key={t.id}
+                task={t}
                 onDelete={(id) => setTasks(tasks.filter(x => x.id !== id))}
                 onEdit={(t) => { setEditTask(t); setShowForm(true); }}
-                onToggle={(t) => setTasks(tasks.map(x => x.id === t.id ? {...x, status: x.status === 'pending' ? 'completed' : 'pending'} : x))}
+                onToggle={(t) => setTasks(tasks.map(x => x.id === t.id ? { ...x, status: x.status === 'pending' ? 'completed' : 'pending' } : x))}
               />
             ))}
           </div>
@@ -55,10 +77,10 @@ export default function App() {
       </div>
 
       {showForm && (
-        <TaskForm 
-          initialData={editTask} 
-          onSubmit={saveTask} 
-          onCancel={closeModal} 
+        <TaskForm
+          initialData={editTask}
+          onSubmit={saveTask}
+          onCancel={closeModal}
         />
       )}
     </div>
