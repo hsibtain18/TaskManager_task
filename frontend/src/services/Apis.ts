@@ -1,6 +1,6 @@
 // src/services/taskService.ts
 import type { Task, TaskFormData } from '../type';
-import DBConnect from './DBConnect'; 
+import DBConnect from './DBConnect';
 
 export const taskService = {
   // Fetch all tasks default in order of created date 
@@ -15,5 +15,19 @@ export const taskService = {
     return response.data;
   },
 
+  deleteTask: async (id: number): Promise<void> => {
+    await DBConnect.delete(`/tasks/${id}`);
+  },
+
+  // Toggle status
+  toggleStatus: async (task: Task): Promise<Task> => {
+    const newStatus = 'completed';
+    const response = await DBConnect.patch(`/tasks/${task.id}`, { status: newStatus });
+    return response.data;
+  },
+  updateTask: async (id: number, data: TaskFormData): Promise<Task> => {
+    const response = await DBConnect.put(`/tasks/${id}`, data);
+    return response.data;
+  },
 
 };

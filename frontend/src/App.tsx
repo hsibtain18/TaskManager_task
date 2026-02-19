@@ -8,6 +8,7 @@ export default function App() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editTask, setEditTask] = useState<Task | null>(null);
+
   useEffect(() => {
     loadTasks();
   }, []);
@@ -21,18 +22,34 @@ export default function App() {
     } finally {
     }
   };
+  const deleteTask = async (id: number) => {
+    try {
+      await taskService.deleteTask(id)
+      setTasks(tasks.filter(x => x.id !== id))
+    } catch (error) {
+      console.log("Failed to delete");
+      
+    }
+  }
+   const ChangeStatus = async (data: Task) => {
+    try {
+      await taskService.toggleStatus(data)
+      await loadTasks()
+    } catch (error) {
+      console.log("Failed to delete");
+      
+    }
+  }
   const saveTask = async (data: TaskFormData) => {
     try {
+      debugger
       if (editTask) {
-
+        await taskService.updateTask(editTask.id,data)
       } else {
-        const newTask = await taskService.createTask(data);
-        setTasks([newTask, ...tasks]);
-
-        //  await taskService.createTask(data);
-        // await loadTasks()
+         await taskService.createTask(data);
       }
-
+      
+      await loadTasks()
       closeModal();
     } catch (error) {
       console.error("Error saving task:", error);
@@ -63,9 +80,9 @@ export default function App() {
               <TaskCard
                 key={t.id}
                 task={t}
-                onDelete={(id) => setTasks(tasks.filter(x => x.id !== id))}
+                onDelete={(id) => deleteTask(id)}
                 onEdit={(t) => { setEditTask(t); setShowForm(true); }}
-                onToggle={(t) => setTasks(tasks.map(x => x.id === t.id ? { ...x, status: x.status === 'pending' ? 'completed' : 'pending' } : x))}
+                onToggle={(t) => ChangeStatus(t)}
               />
             ))}
           </div>

@@ -1,4 +1,4 @@
-import { Trash2, Edit3 } from 'lucide-react';
+import { Trash2, Edit3, CircleCheckBig, SquarePen, SquircleDashed } from 'lucide-react';
 import type { Task } from '../type';
 
 interface Props {
@@ -15,20 +15,17 @@ export default function TaskCard({ task, onDelete, onEdit, onToggle }: Props) {
     <div className="bg-white border border-gray-300 p-4 flex flex-col justify-between shadow-sm">
       <div>
         <div className="flex items-center justify-between mb-3">
-          {/* Native-style checkbox for status */}
-          <input 
-            type="checkbox" 
-            checked={isDone}
-            onChange={() => onToggle(task)}
-            className="h-4 w-4 accent-blue-600 cursor-pointer"
-          />
-          <span className={`text-[10px] font-bold uppercase px-1.5 py-0.5 border ${
-            isDone ? 'bg-gray-100 border-gray-200 text-gray-500' : 'bg-blue-50 border-blue-200 text-blue-700'
-          }`}>
+          {isDone ?
+            <CircleCheckBig /> :
+            <SquircleDashed onClick={() => onToggle(task)} />
+
+          }
+          <span className={`text-[10px] font-bold uppercase px-1.5 py-0.5 border ${isDone ? 'bg-gray-100 border-gray-200 text-gray-500' : 'bg-blue-50 border-blue-200 text-blue-700'
+            }`}>
             {task.status}
           </span>
         </div>
-        
+
         <h3 className={`font-semibold text-gray-900 ${isDone ? 'line-through text-gray-400' : ''}`}>
           {task.title}
         </h3>
@@ -38,15 +35,18 @@ export default function TaskCard({ task, onDelete, onEdit, onToggle }: Props) {
       </div>
 
       <div className="flex justify-end gap-2 mt-4 pt-3 border-t border-gray-100">
-        <button 
-          onClick={() => onEdit(task)} 
-          className="p-1.5 text-gray-500 hover:bg-gray-100 rounded"
-          title="Edit"
-        >
-          <Edit3 size={16} />
-        </button>
-        <button 
-          onClick={() => onDelete(task.id)} 
+        {isDone ||
+          <button
+            onClick={() => onEdit(task)}
+            className="p-1.5 text-gray-500 hover:bg-gray-100 rounded"
+            title="Edit"
+          >
+            <SquarePen size={16} />
+          </button>
+        }
+
+        <button
+          onClick={() => onDelete(task.id)}
           className="p-1.5 text-red-500 hover:bg-red-50 rounded"
           title="Delete"
         >
